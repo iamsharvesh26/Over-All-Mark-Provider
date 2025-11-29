@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Allocation Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+        }
+        
+        h1 {
+            color: #38bdf8;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        h2 {
+            color: #38bdf8;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 10px;
+        }
+        
+        .table-header-row {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+        
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+        
+        input, select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid #334155;
+            background: #1e293b;
+            color: #f8fafc;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+        
+        button {
+            background: #0ea5e9;
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: fit-content;
+        }
+        
+        button:hover {
+            background: #38bdf8;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background: #1e293b;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        th, td {
+            padding: 14px 12px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+        
+        th {
+            background: #0f172a;
+            color: #38bdf8;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        td {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+        
+        .subject-col {
+            text-align: left;
+            font-weight: 600;
+            color: #38bdf8;
+        }
+        
+        .highlight {
+            background: rgba(56, 189, 248, 0.15);
+            font-weight: 600;
+        }
+        
+        input.table-input {
+            width: 60px;
+            padding: 6px;
+            text-align: center;
+            background: #334155;
+            border: 1px solid #475569;
+            color: white;
+        }
+        
+        .action-btn {
+            background: #0ea5e9;
+            color: #0f172a;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        
+        .action-btn.remove {
+            background: #ef4444;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+            font-style: italic;
+        }
+        
+        .required-subheader {
+            font-size: 12px;
+            color: #cbd5e1;
+            font-weight: normal;
+        }
+        
+        @media (max-width: 768px) {
+            .table-header-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            table {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mark Allocation Calculator</h1>
+            <p class="subtitle">Calculate your internal marks for multiple subjects</p>
+        </header>
+        
+        <div class="card">
+            <h2>Internal Marks Table</h2>
+            
+            <!-- Input fields in table header row -->
+            <div class="table-header-row">
+                <div class="input-group">
+                    <label for="subject">Subject Name</label>
+                    <input type="text" id="subject" placeholder="Enter subject name">
+                </div>
+                
+                <div class="input-group">
+                    <label for="credit">Credit Value</label>
+                    <select id="credit">
+                        <option value="4">4 Credit</option>
+                        <option value="3">3 Credit</option>
+                        <option value="2">2 Credit</option>
+                    </select>
+                </div>
+                
+                <button onclick="addSubject()">Add Subject</button>
+            </div>
+            
+            <div class="table-container">
+                <table id="internal-table">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Internal 1</th>
+                            <th>Internal 2</th>
+                            <th>Tutorial 1</th>
+                            <th>Tutorial 2</th>
+                            <th>Overall Internal mark</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="internal-tbody">
+                        <tr>
+                            <td colspan="7" class="empty-state">No subjects added yet. Add your first subject above.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Required Semester Marks</h2>
+            <div class="table-container">
+                <table id="required-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Subject</th>
+                            <th colspan="2">MARK REQUIRED OUT OF 100<br><span class="required-subheader">to score 50/100</span></th>
+                            <th colspan="2">MARK REQUIRED OUT OF 100<br><span class="required-subheader">to score 60/100</span></th>
+                            <th colspan="2">MARK REQUIRED OUT OF 100<br><span class="required-subheader">to score 70/100</span></th>
+                            <th colspan="2">MARK REQUIRED OUT OF 100<br><span class="required-subheader">to score 80/100</span></th>
+                        </tr>
+                        <tr>
+                            <!-- 50/100 columns -->
+                            <th>Out of 100</th>
+                            <th>Out of 60</th>
+                            <!-- 60/100 columns -->
+                            <th>Out of 100</th>
+                            <th>Out of 60</th>
+                            <!-- 70/100 columns -->
+                            <th>Out of 100</th>
+                            <th>Out of 60</th>
+                            <!-- 80/100 columns -->
+                            <th>Out of 100</th>
+                            <th>Out of 60</th>
+                        </tr>
+                    </thead>
+                    <tbody id="required-tbody">
+                        <tr>
+                            <td colspan="9" class="empty-state">No subjects added yet. Add your first subject above.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let subjects = [];
+        
+        function addSubject() {
+            const subjectName = document.getElementById('subject').value.trim();
+            const credit = document.getElementById('credit').value;
+            
+            if (!subjectName) {
+                alert('Please enter a subject name');
+                return;
+            }
+            
+            // Add subject to array
+            subjects.push({
+                name: subjectName,
+                credit: credit,
+                internal1: 0,
+                internal2: 0,
+                tutorial1: 0,
+                tutorial2: 0,
+                overall: 0
+            });
+            
+            // Clear input
+            document.getElementById('subject').value = '';
+            
+            // Update tables
+            updateTables();
+        }
+        
+        function updateTables() {
+            updateInternalTable();
+            updateRequiredTable();
+        }
+        
+        function updateInternalTable() {
+            const tbody = document.getElementById('internal-tbody');
+            tbody.innerHTML = '';
+            
+            if (subjects.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No subjects added yet. Add your first subject above.</td></tr>';
+                return;
+            }
+            
+            subjects.forEach((subject, index) => {
+                const row = document.createElement('tr');
+                
+                // Subject name with credit
+                const subjectCell = document.createElement('td');
+                subjectCell.className = 'subject-col';
+                subjectCell.textContent = `${subject.name} (${subject.credit}-credit)`;
+                row.appendChild(subjectCell);
+                
+                // Internal 1
+                const internal1Cell = document.createElement('td');
+                internal1Cell.innerHTML = `<input type="number" min="0" max="50" class="table-input" value="${subject.internal1}" onchange="updateSubjectMark(${index}, 'internal1', this.value)">/50`;
+                row.appendChild(internal1Cell);
+                
+                // Internal 2
+                const internal2Cell = document.createElement('td');
+                internal2Cell.innerHTML = `<input type="number" min="0" max="50" class="table-input" value="${subject.internal2}" onchange="updateSubjectMark(${index}, 'internal2', this.value)">/50`;
+                row.appendChild(internal2Cell);
+                
+                // Tutorial 1
+                const tutorial1Cell = document.createElement('td');
+                if (subject.credit === '4') {
+                    tutorial1Cell.innerHTML = `<input type="number" min="0" max="50" class="table-input" value="${subject.tutorial1}" onchange="updateSubjectMark(${index}, 'tutorial1', this.value)">/50`;
+                } else {
+                    tutorial1Cell.textContent = 'Nil';
+                }
+                row.appendChild(tutorial1Cell);
+                
+                // Tutorial 2
+                const tutorial2Cell = document.createElement('td');
+                if (subject.credit === '4') {
+                    tutorial2Cell.innerHTML = `<input type="number" min="0" max="50" class="table-input" value="${subject.tutorial2}" onchange="updateSubjectMark(${index}, 'tutorial2', this.value)">/50`;
+                } else {
+                    tutorial2Cell.textContent = 'Nil';
+                }
+                row.appendChild(tutorial2Cell);
+                
+                // Overall Internal mark
+                const overallCell = document.createElement('td');
+                overallCell.className = 'highlight';
+                overallCell.textContent = `${subject.overall}/40`;
+                row.appendChild(overallCell);
+                
+                // Actions
+                const actionsCell = document.createElement('td');
+                actionsCell.innerHTML = `<button class="action-btn remove" onclick="removeSubject(${index})">Remove</button>`;
+                row.appendChild(actionsCell);
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        function updateRequiredTable() {
+            const tbody = document.getElementById('required-tbody');
+            tbody.innerHTML = '';
+            
+            if (subjects.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No subjects added yet. Add your first subject above.</td></tr>';
+                return;
+            }
+            
+            subjects.forEach((subject, index) => {
+                const row = document.createElement('tr');
+                
+                // Subject name
+                const subjectCell = document.createElement('td');
+                subjectCell.className = 'subject-col';
+                subjectCell.textContent = subject.name;
+                row.appendChild(subjectCell);
+                
+                // Calculate required marks for each target score
+                const targets = [50, 60, 70, 80];
+                
+                targets.forEach(target => {
+                    // Calculate required semester marks (out of 100)
+                    const requiredOutOf100 = calculateRequiredMark(subject.overall, target);
+                    
+                    // Convert to out of 60 (semester marks are out of 60 in final calculation)
+                    const requiredOutOf60 = (requiredOutOf100 / 100 * 60).toFixed(1);
+                    
+                    // Add out of 100 cell
+                    const outOf100Cell = document.createElement('td');
+                    outOf100Cell.textContent = `${requiredOutOf100}/100`;
+                    row.appendChild(outOf100Cell);
+                    
+                    // Add out of 60 cell
+                    const outOf60Cell = document.createElement('td');
+                    outOf60Cell.textContent = `${requiredOutOf60}/60`;
+                    row.appendChild(outOf60Cell);
+                });
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        function updateSubjectMark(index, field, value) {
+            // Update the subject's mark
+            subjects[index][field] = parseInt(value) || 0;
+            
+            // Recalculate overall internal mark
+            calculateOverallMark(index);
+            
+            // Update tables
+            updateTables();
+        }
+        
+        function calculateOverallMark(index) {
+            const subject = subjects[index];
+            
+            // Calculate internal marks (each CAT is 15 marks)
+            let overall = (subject.internal1 / 50) * 15 + (subject.internal2 / 50) * 15;
+            
+            // Add tutorial marks if credit is 4 (each tutorial is 5 marks)
+            if (subject.credit === '4') {
+                overall += (subject.tutorial1 / 50) * 5 + (subject.tutorial2 / 50) * 5;
+            }
+            
+            // Cap at 40
+            subject.overall = Math.min(overall, 40).toFixed(1);
+        }
+        
+        function calculateRequiredMark(internalMark, target) {
+            // Calculate required semester mark (out of 100) to reach target total
+            // Total = Internal (out of 40) + Semester (out of 60)
+            // So: Semester marks needed = (target - internalMark) / 60 * 100
+            const required = ((target - internalMark) / 60) * 100;
+            return required > 0 ? Math.max(required, 0).toFixed(1) : 0;
+        }
+        
+        function removeSubject(index) {
+            subjects.splice(index, 1);
+            updateTables();
+        }
+    </script>
+</body>
+</html>
